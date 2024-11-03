@@ -3,14 +3,17 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .bodyContainer {
   width: 100%;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   background-color: rgb(170, 42, 182);
   display: flex;
   flex-direction: row;
+  overflow: hidden;
 }
 
 .sidebarContainer {
@@ -22,4 +25,9 @@
 .mainContainer {
   background-color: rgb(142, 142, 189);
   flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
 }
