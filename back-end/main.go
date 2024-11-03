@@ -75,6 +75,13 @@ func handlePreview(c *gin.Context) {
 		})
 		return
 	}
+	previewLength, err := strconv.Atoi(c.Query("preview_length"))
+	if err != nil || previewLength <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "preview_length is required",
+		})
+		return
+	}
 
 	dataPath := getDataPath()
 	files, err := os.ReadDir(filepath.Join(dataPath, "targets"))
@@ -106,7 +113,7 @@ func handlePreview(c *gin.Context) {
 
 		previews[i] = FilePreview{
 			Id:       file.Name(),
-			Content:  string(content)[:256],
+			Content:  string(content)[:previewLength],
 			NumWords: numWords,
 		}
 	}
