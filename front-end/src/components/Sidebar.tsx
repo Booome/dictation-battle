@@ -6,15 +6,15 @@ import styles from './Sidebar.module.scss';
 
 type ItemProps = {
   title: string;
-  href: string;
+  route: string;
   icon: React.ReactNode;
 };
 
-function Item({ title, href, icon }: ItemProps) {
-  const isActive = useLocation().pathname === href;
+function Item({ title, route, icon }: ItemProps) {
+  const isActive = useLocation().pathname === route;
 
   return (
-    <a href={href} className={`${styles.item} ${isActive ? styles.active : ''}`}>
+    <a href={route} className={`${styles.item} ${isActive ? styles.active : ''}`}>
       {icon}
       <span>{title}</span>
     </a>
@@ -24,9 +24,9 @@ function Item({ title, href, icon }: ItemProps) {
 export function Sidebar() {
   return (
     <div className={styles.sidebar}>
-      <Item title="Home" href="/" icon={<HomeIcon />} />
-      <Item title="Daily Target" href="/daliyTarget" icon={<DailyTargetIcon />} />
-      <Item title="Battles" href="/battles" icon={<BattlesIcon />} />
+      <Item title="Home" route="/" icon={<HomeIcon />} />
+      <Item title="Daily Target" route="/daliyTarget" icon={<DailyTargetIcon />} />
+      <Item title="Battles" route="/battles" icon={<BattlesIcon />} />
     </div>
   );
 }

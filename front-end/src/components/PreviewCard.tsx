@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import styles from './PreviewCard.module.scss';
 
 type PreviewCardProps = {
@@ -7,5 +8,15 @@ type PreviewCardProps = {
 };
 
 export function PreviewCard({ id, content, numWords }: PreviewCardProps) {
-  return <div className={styles.previewCard}>{content}</div>;
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/target/${id}`);
+  };
+
+  return (
+    <button className={styles.previewCard} onClick={handleClick} type="button">
+      {content}
+    </button>
+  );
 }

@@ -112,7 +112,7 @@ func handlePreview(c *gin.Context) {
 		numWords := len(strings.Split(string(content), " "))
 
 		previews[i] = FilePreview{
-			Id:       file.Name(),
+			Id:       strings.TrimSuffix(file.Name(), ".txt"),
 			Content:  string(content)[:previewLength],
 			NumWords: numWords,
 		}
