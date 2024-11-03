@@ -1,0 +1,20 @@
+.btnHostBattle {
+  font-family: 'Clash Grotesk';
+  font-size: 1.25rem;
+  background-color: #000000d0;
+  color: #e2e2e2;
+  display: block;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transition: background-color 0.2s ease;
+  margin: 1rem auto;
+
+  &:hover {
+    background-color: #00000099;
+  }
+}

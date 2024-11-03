@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ComponentType } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { name as appName } from '../../package.json';
+import { ContractProvider } from './ContractProvider';
 
 function ApiProvider({ children }: ProviderProps) {
   return <GearApiProvider initialArgs={{ endpoint: ADDRESS.NODE }}>{children}</GearApiProvider>;
@@ -42,7 +43,7 @@ function AccountProvider({ children }: ProviderProps) {
   return <GearAccountProvider appName={appName}>{children}</GearAccountProvider>;
 }
 
-const providers = [BrowserRouter, AlertProvider, ApiProvider, AccountProvider, QueryProvider];
+const providers = [BrowserRouter, AlertProvider, ApiProvider, AccountProvider, QueryProvider, ContractProvider];
 
 export function withProviders(Component: ComponentType) {
   // biome-ignore lint/correctness/useJsxKeyInIterable: <explanation>
