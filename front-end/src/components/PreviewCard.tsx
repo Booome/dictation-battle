@@ -10,12 +10,8 @@ type PreviewCardProps = {
 export function PreviewCard({ id, content, numWords }: PreviewCardProps) {
   const navigate = useNavigate();
 
-  const handleClick = () => {
-    navigate(`/target/${id}`);
-  };
-
   return (
-    <button className={styles.previewCard} onClick={handleClick} type="button">
+    <button className={styles.previewCard} onClick={() => navigate(`/target/${id}`)} type="button">
       {content}
     </button>
   );

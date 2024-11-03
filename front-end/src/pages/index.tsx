@@ -1,10 +1,12 @@
 import { Route, Routes } from 'react-router-dom';
 import { Battles } from './Battles';
+import { CreateBattle } from './CreateBattle';
 import { Home } from './Home';
 
 const routes = [
   { path: '/', Page: Home },
   { path: '/battles', Page: Battles },
+  { path: '/create-battle', Page: CreateBattle },
 ];
 
 export function Routing() {
