@@ -1,30 +1,62 @@
-import { Box, Paper, TextField } from '@mui/material';
+import { useContract } from '@/hocs/ContractProvider';
+import { Box, Button, Paper, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import type { Dayjs } from 'dayjs';
+import dayjs, { type Dayjs } from 'dayjs';
 import { useState } from 'react';
 
 export function CreateBattle() {
   const [entryFee, setEntryFee] = useState<string>('');
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const contract = useContract();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await contract.services.DictationBattle.functions.CreateBattle(
+        entryFee,
+        dayjs().utcOffset() / 60,
+        startDate ? Math.floor(startDate.valueOf() / 1000) : 0,
+        endDate ? Math.floor(endDate.valueOf() / 1000) : 0,
+      );
+
+      console.log('response:', response);
+    } catch (error) {
+      console.error('error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ p: 3 }}>
         <Paper sx={{ p: 3 }}>
-          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <TextField label="Entry Fee" type="number" value={entryFee} onChange={(e) => setEntryFee(e.target.value)} />
 
-            <DateTimePicker label="Start Date" value={startDate} onChange={(newValue) => setStartDate(newValue)} />
+            <DatePicker
+              label="Start Date"
+              value={startDate}
+              onChange={(newValue) => setStartDate(newValue)}
+              minDate={dayjs().add(1, 'day')}
+            />
 
-            <DateTimePicker
+            <DatePicker
               label="End Date"
               value={endDate}
               onChange={(newValue) => setEndDate(newValue)}
-              minDateTime={startDate || undefined}
+              minDate={startDate || undefined}
             />
+
+            <Button type="submit" variant="contained" disabled={isSubmitting || !entryFee || !startDate || !endDate}>
+              {isSubmitting ? 'Submitting...' : 'Create Battle'}
+            </Button>
           </Box>
         </Paper>
       </Box>
