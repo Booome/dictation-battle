@@ -4,13 +4,19 @@ import HomeIcon from '@/assets/images/icons/home.svg?react';
 import { useLocation } from 'react-router-dom';
 import styles from './Sidebar.module.scss';
 
-type ItemProps = {
+export type SidebarItemProps = {
   title: string;
   route: string;
   icon: React.ReactNode;
 };
 
-function Item({ title, route, icon }: ItemProps) {
+export const SIDEBAR_ITEMS: SidebarItemProps[] = [
+  { title: 'Home', route: '/', icon: <HomeIcon /> },
+  { title: 'Daily Target', route: '/dailyTarget', icon: <DailyTargetIcon /> },
+  { title: 'Battles', route: '/battles', icon: <BattlesIcon /> },
+];
+
+function Item({ title, route, icon }: SidebarItemProps) {
   const isActive = useLocation().pathname === route;
 
   return (
@@ -24,9 +30,9 @@ function Item({ title, route, icon }: ItemProps) {
 export function Sidebar() {
   return (
     <div className={styles.sidebar}>
-      <Item title="Home" route="/" icon={<HomeIcon />} />
-      <Item title="Daily Target" route="/daliyTarget" icon={<DailyTargetIcon />} />
-      <Item title="Battles" route="/battles" icon={<BattlesIcon />} />
+      {SIDEBAR_ITEMS.map((item) => (
+        <Item key={item.route} {...item} />
+      ))}
     </div>
   );
 }
