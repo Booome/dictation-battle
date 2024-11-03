@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import styles from './App.module.scss';
 import { ApiLoader } from './components/ApiLoader';
 import { Header } from './components/Header';
-import { Sidebar, SIDEBAR_ITEMS } from './components/Sidebar';
+import { SIDEBAR_ITEMS, Sidebar } from './components/Sidebar';
 import { withProviders } from './hocs';
 import { Routing } from './pages';
 
@@ -13,17 +13,15 @@ function Component() {
   const location = useLocation();
 
   const isAppReady = isApiReady && isAccountReady;
-  const showSidebar = SIDEBAR_ITEMS.some((item) => item.route === location.pathname);
+  const showSidebar = SIDEBAR_ITEMS.some((item) => location.pathname === item.route);
 
   return (
     <div className={styles.appContainer}>
       <Header />
       <div className={styles.bodyContainer}>
-        {showSidebar && (
-          <div className={styles.sidebarContainer}>
-            <Sidebar />
-          </div>
-        )}
+        <div className={`${styles.sidebarContainer} ${!showSidebar ? styles.hidden : ''}`}>
+          <Sidebar />
+        </div>
         <div className={styles.mainContainer}>
           <main>{isAppReady ? <Routing /> : <ApiLoader />}</main>
         </div>
