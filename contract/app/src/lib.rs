@@ -51,31 +51,40 @@ impl DictationBattleService {
             .push(id);
     }
 
-    pub fn get_battles(&self) -> Vec<DictationBattle> {
-        DictationBattleData::instance().battles.clone()
+    pub fn get_battle(&self, battle_id: i64) -> DictationBattle {
+        let battles = &DictationBattleData::instance().battles;
+        let len = battles.len() as i64;
+
+        let index = if battle_id < 0 {
+            len + battle_id
+        } else {
+            battle_id
+        };
+
+        if index < 0 || index >= len {
+            panic!("battle_id {} is out of range", battle_id);
+        }
+
+        battles[index as usize].clone()
     }
 
-    pub fn get_battle(&self, battle_id: u64) -> DictationBattle {
-        DictationBattleData::instance().battles[battle_id as usize].clone()
-    }
+    pub fn get_battles(&self, start: i32, stop: i32) -> Vec<DictationBattle> {
+        let battles = &DictationBattleData::instance().battles;
+        let len = battles.len() as i32;
 
-    pub fn get_created_battles(&self, user: ActorId) -> Vec<u64> {
-        DictationBattleData::instance()
-            .user_battles
-            .get(&user)
-            .unwrap_or(&Vec::new())
-            .clone()
-    }
+        let start = if start < 0 { len + start } else { start };
+        let stop = if stop < 0 { len + stop } else { stop };
 
-    pub fn get_latest_ongoing_battles(&self, count: u64) -> Vec<DictationBattle> {
-        DictationBattleData::instance()
-            .battles
-            .iter()
-            .rev()
-            .filter(|b| matches!(b.status, BattleStatus::InProgress))
-            .take(count as usize)
-            .cloned()
-            .collect()
+        let start = start.clamp(0, len) as usize;
+        let stop = stop.clamp(0, len) as usize;
+
+        if start <= stop {
+            battles[start..stop].to_vec()
+        } else {
+            let mut result = battles[stop..start].to_vec();
+            result.reverse();
+            result
+        }
     }
 
     pub fn join_battle(&mut self, battle_id: u64) {

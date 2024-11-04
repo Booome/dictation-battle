@@ -33,8 +33,10 @@ export function ContractProvider({ children }: ContractProviderProps) {
   const [contract, setContract] = useState<Sails | null>(null);
 
   useEffect(() => {
-    initializeContract().then(setContract);
-  }, []);
+    if (!contract) {
+      initializeContract().then(setContract);
+    }
+  }, [contract]);
 
   if (!contract) {
     return null;
