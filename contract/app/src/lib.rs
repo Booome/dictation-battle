@@ -8,7 +8,8 @@ use sails_rs::{
 
 struct DictationBattleData {
     battles: Vec<DictationBattle>,
-    user_battles: BTreeMap<ActorId, Vec<u64>>,
+    created_battles: BTreeMap<ActorId, Vec<u64>>,
+    joined_battles: BTreeMap<ActorId, Vec<u64>>,
 }
 
 static mut DICTATION_BATTLE_DATA: Option<DictationBattleData> = None;
@@ -17,7 +18,8 @@ impl DictationBattleData {
     fn new() -> Self {
         Self {
             battles: Vec::new(),
-            user_battles: BTreeMap::new(),
+            created_battles: BTreeMap::new(),
+            joined_battles: BTreeMap::new(),
         }
     }
 
@@ -45,7 +47,7 @@ impl DictationBattleService {
             id, entry_fee, timezone, start_time, end_time,
         ));
 
-        data.user_battles
+        data.created_battles
             .entry(msg::source())
             .or_insert_with(Vec::new)
             .push(id);
@@ -93,10 +95,9 @@ impl DictationBattleService {
             panic!("battle_id {} does not exist", battle_id);
         }
 
-        let battle = &mut data.battles[battle_id as usize];
-        battle.join();
+        data.battles[battle_id as usize].join();
 
-        data.user_battles
+        data.joined_battles
             .entry(msg::source())
             .or_insert_with(Vec::new)
             .push(battle_id);
@@ -212,14 +213,14 @@ impl DictationBattle {
             );
         }
 
-        if value > self.entry_fee {
-            msg::send(user, "", value - self.entry_fee).expect("failed to refund excess payment");
-        }
-
         self.participants.push(Participant {
             user_id: user,
             daily_completions: Vec::new(),
             joined_at: exec::block_timestamp(),
         });
+
+        if value > self.entry_fee {
+            msg::send(user, "", value - self.entry_fee).expect("failed to refund excess payment");
+        }
     }
 }
