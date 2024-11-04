@@ -10,7 +10,7 @@ export function Battles() {
   const contract = useContract();
 
   return (
-    <div>
+    <div className={styles.container}>
       <button type="button" className={styles.btnHostBattle} onClick={() => navigate('/create-battle')}>
         Host a Battle
       </button>

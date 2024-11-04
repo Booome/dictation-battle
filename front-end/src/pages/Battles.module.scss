@@ -1,7 +1,11 @@
+.container {
+  padding: 0 7rem;
+}
+
 .btnHostBattle {
   font-family: 'Clash Grotesk';
   font-size: 1.25rem;
-  background-color: #000000d0;
+  background-color: rgb(42, 98, 182);
   color: #e2e2e2;
   display: block;
   padding: 0.5rem 0.75rem;
@@ -13,8 +17,9 @@
   appearance: none;
   transition: background-color 0.2s ease;
   margin: 1rem auto;
+  border-radius: 0.25rem;
 
   &:hover {
-    background-color: #00000099;
+    background-color: rgb(30, 69, 128);
   }
 }
