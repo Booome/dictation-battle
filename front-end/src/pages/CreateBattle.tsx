@@ -7,6 +7,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { web3FromSource } from '@polkadot/extension-dapp';
 import dayjs, { type Dayjs } from 'dayjs';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export function CreateBattle() {
   const [entryFee, setEntryFee] = useState<string>('');
@@ -16,10 +17,15 @@ export function CreateBattle() {
   const contract = useContract();
   const { account } = useAccount();
   const isWalletConnected = !!account;
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    if (!account?.address || !account?.meta?.source) {
+      throw new Error('Wallet not connected');
+    }
 
     const entryFeeNumber = Number.parseInt(entryFee);
     const timeZone = dayjs().utcOffset() / 60;
@@ -38,16 +44,18 @@ export function CreateBattle() {
         startDateNumber,
         endDateNumber,
       );
-      if (!account?.address || !account?.meta?.source) {
-        throw new Error('Wallet not connected');
-      }
-
       const injector = await web3FromSource(account.meta.source);
       transaction.withAccount(account.address, { signer: injector.signer });
-      const calculatedGas = await transaction.calculateGas();
+      //   await transaction.calculateGas(true, 10);
+      const { msgId, blockHash, txHash, response, isFinalized } = await transaction.signAndSend();
 
-      console.log('calculatedGas:', calculatedGas);
-      console.log('response:', transaction);
+      console.log('msgId:', msgId);
+      console.log('blockHash:', blockHash);
+      console.log('txHash:', txHash);
+      console.log('response:', response);
+      console.log('isFinalized:', await isFinalized);
+
+      navigate('/battles');
     } catch (error) {
       console.error('error:', error);
     } finally {
