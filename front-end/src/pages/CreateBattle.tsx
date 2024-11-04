@@ -1,4 +1,5 @@
 import { useContract } from '@/hocs/ContractProvider';
+import { useAccount } from '@gear-js/react-hooks';
 import { Box, Button, Paper, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -12,6 +13,8 @@ export function CreateBattle() {
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const contract = useContract();
+  const { account } = useAccount();
+  const isWalletConnected = !!account;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,8 +57,11 @@ export function CreateBattle() {
               minDate={startDate || undefined}
             />
 
-            <Button type="submit" variant="contained" disabled={isSubmitting || !entryFee || !startDate || !endDate}>
-              {isSubmitting ? 'Submitting...' : 'Create Battle'}
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={!isWalletConnected || isSubmitting || !entryFee || !startDate || !endDate}>
+              {!isWalletConnected ? 'Please Connect Wallet' : isSubmitting ? 'Submitting...' : 'Create Battle'}
             </Button>
           </Box>
         </Paper>
