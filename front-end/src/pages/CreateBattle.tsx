@@ -50,7 +50,7 @@ export function CreateBattle() {
       );
       const injector = await web3FromSource(account.meta.source);
       transaction.withAccount(account.address, { signer: injector.signer });
-      // await transaction.calculateGas(true, 10);
+      await transaction.calculateGas(true, 10);
       const { msgId, blockHash, txHash, response, isFinalized } = await transaction.signAndSend();
 
       console.debug('msgId:', msgId);

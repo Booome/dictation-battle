@@ -6,43 +6,70 @@ use sails_rs::{
     prelude::*,
 };
 
-struct DictationBattleService {
+struct DictationBattleData {
     battles: Vec<DictationBattle>,
     user_battles: BTreeMap<ActorId, Vec<u64>>,
 }
 
-#[sails_rs::service]
-impl DictationBattleService {
-    pub fn new() -> Self {
+static mut DICTATION_BATTLE_DATA: Option<DictationBattleData> = None;
+
+impl DictationBattleData {
+    fn new() -> Self {
         Self {
             battles: Vec::new(),
             user_battles: BTreeMap::new(),
         }
     }
 
-    pub fn create_battle(&mut self, entry_fee: u128, timezone: i8, start_time: u64, end_time: u64) {
-        let id = self.battles.len() as u64;
-        let battle = DictationBattle::new(id, entry_fee, timezone, start_time, end_time);
+    pub fn instance() -> &'static mut Self {
+        #[allow(static_mut_refs)]
+        unsafe {
+            DICTATION_BATTLE_DATA.get_or_insert(Self::new())
+        }
+    }
+}
 
-        let creator = msg::source();
-        self.user_battles
-            .entry(creator)
+struct DictationBattleService(());
+
+#[sails_rs::service]
+impl DictationBattleService {
+    pub fn new() -> Self {
+        Self(())
+    }
+
+    pub fn create_battle(&mut self, entry_fee: u128, timezone: i8, start_time: u64, end_time: u64) {
+        let data = DictationBattleData::instance();
+        let id = data.battles.len() as u64;
+
+        data.battles.push(DictationBattle::new(
+            id, entry_fee, timezone, start_time, end_time,
+        ));
+
+        data.user_battles
+            .entry(msg::source())
             .or_insert_with(Vec::new)
             .push(id);
+    }
 
-        self.battles.push(battle);
+    pub fn get_battles(&self) -> Vec<DictationBattle> {
+        DictationBattleData::instance().battles.clone()
     }
 
     pub fn get_battle(&self, battle_id: u64) -> DictationBattle {
-        self.battles[battle_id as usize].clone()
+        DictationBattleData::instance().battles[battle_id as usize].clone()
     }
 
     pub fn get_created_battles(&self, user: ActorId) -> Vec<u64> {
-        self.user_battles.get(&user).unwrap_or(&Vec::new()).clone()
+        DictationBattleData::instance()
+            .user_battles
+            .get(&user)
+            .unwrap_or(&Vec::new())
+            .clone()
     }
 
     pub fn get_latest_ongoing_battles(&self, count: u64) -> Vec<DictationBattle> {
-        self.battles
+        DictationBattleData::instance()
+            .battles
             .iter()
             .rev()
             .filter(|b| matches!(b.status, BattleStatus::InProgress))
@@ -52,14 +79,15 @@ impl DictationBattleService {
     }
 
     pub fn join_battle(&mut self, battle_id: u64) {
-        if battle_id >= self.battles.len() as u64 {
+        let data = DictationBattleData::instance();
+        if battle_id >= data.battles.len() as u64 {
             panic!("battle_id {} does not exist", battle_id);
         }
 
-        let battle = &mut self.battles[battle_id as usize];
+        let battle = &mut data.battles[battle_id as usize];
         battle.join();
 
-        self.user_battles
+        data.user_battles
             .entry(msg::source())
             .or_insert_with(Vec::new)
             .push(battle_id);
