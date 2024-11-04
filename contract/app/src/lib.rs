@@ -41,6 +41,16 @@ impl DictationBattleService {
         self.user_battles.get(&user).unwrap_or(&Vec::new()).clone()
     }
 
+    pub fn get_latest_ongoing_battles(&self, count: u64) -> Vec<DictationBattle> {
+        self.battles
+            .iter()
+            .rev()
+            .filter(|b| matches!(b.status, BattleStatus::InProgress))
+            .take(count as usize)
+            .cloned()
+            .collect()
+    }
+
     pub fn join_battle(&mut self, battle_id: u64) {
         if battle_id >= self.battles.len() as u64 {
             panic!("battle_id {} does not exist", battle_id);
@@ -60,12 +70,10 @@ pub struct DictationBattleProgram(());
 
 #[sails_rs::program]
 impl DictationBattleProgram {
-    // Program's constructor
     pub fn new() -> Self {
         Self(())
     }
 
-    // Exposed service
     pub fn dictation_battle(&self) -> DictationBattleService {
         DictationBattleService::new()
     }

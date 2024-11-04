@@ -18,6 +18,9 @@ export function useContract() {
 const initializeContract = async () => {
   const parser = await SailsIdlParser.new();
   const contract = new Sails(parser);
+
+  console.debug('idlContent:', idlContent);
+
   contract.parseIdl(idlContent);
   const api = new GearApi({
     providerAddress: ADDRESS.NODE,

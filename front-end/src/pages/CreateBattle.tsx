@@ -34,10 +34,10 @@ export function CreateBattle() {
     const startDateNumber = startDate ? Math.floor(startDate.valueOf() / 1000) : 0;
     const endDateNumber = endDate ? Math.floor(endDate.valueOf() / 1000) : 0;
 
-    console.log('entryFeeNumber:', entryFeeNumber);
-    console.log('timeZone:', timeZone);
-    console.log('startDateNumber:', startDateNumber);
-    console.log('endDateNumber:', endDateNumber);
+    console.debug('entryFeeNumber:', entryFeeNumber);
+    console.debug('timeZone:', timeZone);
+    console.debug('startDateNumber:', startDateNumber);
+    console.debug('endDateNumber:', endDateNumber);
 
     try {
       const transaction = contract.services.DictationBattle.functions.CreateBattle(
@@ -51,11 +51,11 @@ export function CreateBattle() {
       //   await transaction.calculateGas(true, 10);
       const { msgId, blockHash, txHash, response, isFinalized } = await transaction.signAndSend();
 
-      console.log('msgId:', msgId);
-      console.log('blockHash:', blockHash);
-      console.log('txHash:', txHash);
-      console.log('response:', response);
-      console.log('isFinalized:', await isFinalized);
+      console.debug('msgId:', msgId);
+      console.debug('blockHash:', blockHash);
+      console.debug('txHash:', txHash);
+      console.debug('response:', response);
+      console.debug('isFinalized:', await isFinalized);
 
       navigate('/battles');
     } catch (error) {
