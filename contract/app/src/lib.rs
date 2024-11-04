@@ -8,7 +8,6 @@ use sails_rs::{
 
 struct DictationBattleData {
     battles: Vec<DictationBattle>,
-    created_battles: BTreeMap<ActorId, Vec<u64>>,
     joined_battles: BTreeMap<ActorId, Vec<u64>>,
 }
 
@@ -18,7 +17,6 @@ impl DictationBattleData {
     fn new() -> Self {
         Self {
             battles: Vec::new(),
-            created_battles: BTreeMap::new(),
             joined_battles: BTreeMap::new(),
         }
     }
@@ -43,11 +41,13 @@ impl DictationBattleService {
         let data = DictationBattleData::instance();
         let id = data.battles.len() as u64;
 
-        data.battles.push(DictationBattle::new(
-            id, entry_fee, timezone, start_time, end_time,
-        ));
+        let mut battle = DictationBattle::new(id, entry_fee, timezone, start_time, end_time);
 
-        data.created_battles
+        battle.join();
+
+        data.battles.push(battle);
+
+        data.joined_battles
             .entry(msg::source())
             .or_insert_with(Vec::new)
             .push(id);
@@ -84,6 +84,62 @@ impl DictationBattleService {
             battles[start..stop].to_vec()
         } else {
             let mut result = battles[stop..start].to_vec();
+            result.reverse();
+            result
+        }
+    }
+
+    pub fn get_battle_by_user(&self, user_id: ActorId, index: i32) -> DictationBattle {
+        let data = DictationBattleData::instance();
+
+        let joined = data
+            .joined_battles
+            .get(&user_id)
+            .expect("user has not joined any battles");
+
+        let len = joined.len() as i32;
+
+        let actual_index = if index < 0 { len + index } else { index };
+
+        if actual_index < 0 || actual_index >= len {
+            panic!("index {} is out of range", index);
+        }
+
+        let battle_id = joined[actual_index as usize];
+        data.battles[battle_id as usize].clone()
+    }
+
+    pub fn get_battles_by_user(
+        &self,
+        user_id: ActorId,
+        start: i32,
+        stop: i32,
+    ) -> Vec<DictationBattle> {
+        let data = DictationBattleData::instance();
+
+        let joined = data
+            .joined_battles
+            .get(&user_id)
+            .expect("user has not joined any battles");
+
+        let len = joined.len() as i32;
+
+        let start = if start < 0 { len + start } else { start };
+        let stop = if stop < 0 { len + stop } else { stop };
+
+        let start = start.clamp(0, len) as usize;
+        let stop = stop.clamp(0, len) as usize;
+
+        if start <= stop {
+            joined[start..stop]
+                .iter()
+                .map(|&battle_id| data.battles[battle_id as usize].clone())
+                .collect()
+        } else {
+            let mut result: Vec<DictationBattle> = joined[stop..start]
+                .iter()
+                .map(|&battle_id| data.battles[battle_id as usize].clone())
+                .collect();
             result.reverse();
             result
         }
