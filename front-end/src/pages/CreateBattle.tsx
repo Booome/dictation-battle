@@ -1,5 +1,5 @@
 import { useContract } from '@/hocs/ContractProvider';
-import { useAccount } from '@gear-js/react-hooks';
+import { useAccount, useApi } from '@gear-js/react-hooks';
 import { Alert, Box, Button, Paper, Snackbar, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -19,13 +19,14 @@ export function CreateBattle() {
   const { account } = useAccount();
   const isWalletConnected = !!account;
   const navigate = useNavigate();
+  const { api } = useApi();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
-    if (!account?.address || !account?.meta?.source) {
+    if (!account?.address || !account?.meta?.source || !api) {
       throw new Error('Wallet not connected');
     }
 
@@ -40,6 +41,7 @@ export function CreateBattle() {
     console.debug('endDateNumber:', endDateNumber);
 
     try {
+      contract.setApi(api);
       const transaction = contract.services.DictationBattle.functions.CreateBattle(
         entryFeeNumber,
         timeZone,
@@ -48,7 +50,7 @@ export function CreateBattle() {
       );
       const injector = await web3FromSource(account.meta.source);
       transaction.withAccount(account.address, { signer: injector.signer });
-      //   await transaction.calculateGas(true, 10);
+      // await transaction.calculateGas(true, 10);
       const { msgId, blockHash, txHash, response, isFinalized } = await transaction.signAndSend();
 
       console.debug('msgId:', msgId);

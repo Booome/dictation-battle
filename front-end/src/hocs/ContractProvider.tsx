@@ -1,6 +1,5 @@
 import idlContent from '@/assets/dictation_battle.idl?raw';
-import { ADDRESS, VARA_PROGRAM_ID } from '@/consts';
-import { GearApi } from '@gear-js/api';
+import { VARA_PROGRAM_ID } from '@/consts';
 import { type ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import { Sails } from 'sails-js';
 import { SailsIdlParser } from 'sails-js-parser';
@@ -22,10 +21,6 @@ const initializeContract = async () => {
   console.debug('idlContent:', idlContent);
 
   contract.parseIdl(idlContent);
-  const api = new GearApi({
-    providerAddress: ADDRESS.NODE,
-  });
-  contract.setApi(api);
   contract.setProgramId(VARA_PROGRAM_ID);
   return contract;
 };
