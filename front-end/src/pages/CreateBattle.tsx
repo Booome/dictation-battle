@@ -4,6 +4,7 @@ import { Box, Button, Paper, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { web3FromSource } from '@polkadot/extension-dapp';
 import dayjs, { type Dayjs } from 'dayjs';
 import { useState } from 'react';
 
@@ -20,15 +21,33 @@ export function CreateBattle() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    try {
-      const response = await contract.services.DictationBattle.functions.CreateBattle(
-        entryFee,
-        dayjs().utcOffset() / 60,
-        startDate ? Math.floor(startDate.valueOf() / 1000) : 0,
-        endDate ? Math.floor(endDate.valueOf() / 1000) : 0,
-      );
+    const entryFeeNumber = Number.parseInt(entryFee);
+    const timeZone = dayjs().utcOffset() / 60;
+    const startDateNumber = startDate ? Math.floor(startDate.valueOf() / 1000) : 0;
+    const endDateNumber = endDate ? Math.floor(endDate.valueOf() / 1000) : 0;
 
-      console.log('response:', response);
+    console.log('entryFeeNumber:', entryFeeNumber);
+    console.log('timeZone:', timeZone);
+    console.log('startDateNumber:', startDateNumber);
+    console.log('endDateNumber:', endDateNumber);
+
+    try {
+      const transaction = contract.services.DictationBattle.functions.CreateBattle(
+        entryFeeNumber,
+        timeZone,
+        startDateNumber,
+        endDateNumber,
+      );
+      if (!account?.address || !account?.meta?.source) {
+        throw new Error('Wallet not connected');
+      }
+
+      const injector = await web3FromSource(account.meta.source);
+      transaction.withAccount(account.address, { signer: injector.signer });
+      const calculatedGas = await transaction.calculateGas();
+
+      console.log('calculatedGas:', calculatedGas);
+      console.log('response:', transaction);
     } catch (error) {
       console.error('error:', error);
     } finally {
