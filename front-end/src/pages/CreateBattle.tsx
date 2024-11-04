@@ -1,6 +1,6 @@
 import { useContract } from '@/hocs/ContractProvider';
 import { useAccount } from '@gear-js/react-hooks';
-import { Box, Button, Paper, TextField } from '@mui/material';
+import { Alert, Box, Button, Paper, Snackbar, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -14,6 +14,7 @@ export function CreateBattle() {
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const contract = useContract();
   const { account } = useAccount();
   const isWalletConnected = !!account;
@@ -22,6 +23,7 @@ export function CreateBattle() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
     if (!account?.address || !account?.meta?.source) {
       throw new Error('Wallet not connected');
@@ -58,6 +60,7 @@ export function CreateBattle() {
       navigate('/battles');
     } catch (error) {
       console.error('error:', error);
+      setError(error as string);
     } finally {
       setIsSubmitting(false);
     }
@@ -65,12 +68,30 @@ export function CreateBattle() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ p: 3 }}>
-        <Paper sx={{ p: 3 }}>
-          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <TextField label="Entry Fee" type="number" value={entryFee} onChange={(e) => setEntryFee(e.target.value)} />
+      <Box sx={{ p: 3, display: 'flex', justifyContent: 'center' }}>
+        <Paper sx={{ p: 3, width: '400px' }}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              '& .MuiTextField-root': { fontSize: '0.9rem' },
+              '& .MuiInputLabel-root': { fontSize: '0.9rem' },
+              '& .MuiInputBase-input': { fontSize: '0.9rem' },
+              '& .MuiButton-root': { fontSize: '0.9rem' },
+            }}>
+            <TextField
+              size="small"
+              label="Entry Fee"
+              type="number"
+              value={entryFee}
+              onChange={(e) => setEntryFee(e.target.value)}
+            />
 
             <DatePicker
+              slotProps={{ textField: { size: 'small' } }}
               label="Start Date"
               value={startDate}
               onChange={(newValue) => setStartDate(newValue)}
@@ -78,6 +99,7 @@ export function CreateBattle() {
             />
 
             <DatePicker
+              slotProps={{ textField: { size: 'small' } }}
               label="End Date"
               value={endDate}
               onChange={(newValue) => setEndDate(newValue)}
@@ -93,6 +115,15 @@ export function CreateBattle() {
           </Box>
         </Paper>
       </Box>
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+        <Alert onClose={() => setError(null)} severity="error" sx={{ width: '100%' }}>
+          Create Battle Failed: {error}
+        </Alert>
+      </Snackbar>
     </LocalizationProvider>
   );
 }
