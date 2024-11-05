@@ -1,5 +1,6 @@
 import { useContract } from '@/hocs/ContractProvider';
 import { useAccount, useApi } from '@gear-js/react-hooks';
+import { Box, Button } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Battles.module.scss';
@@ -29,13 +30,17 @@ export function Battles() {
   }, [account, api]);
 
   return (
-    <div className={styles.container}>
-      <button type="button" className={styles.btnHostBattle} onClick={() => navigate('/create-battle')}>
+    <Box sx={{ p: '0 7rem' }}>
+      <Button
+        variant="contained"
+        sx={{ display: 'block', margin: '1rem auto' }}
+        onClick={() => navigate('/create-battle')}>
         Host a Battle
-      </button>
+      </Button>
+
       <Divider name="Ongoing Battles" />
       <BattleList />
-    </div>
+    </Box>
   );
 }
 

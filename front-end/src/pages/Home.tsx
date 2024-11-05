@@ -1,7 +1,7 @@
 import { PreviewCard } from '@/components/PreviewCard';
 import { BACKEND_URL } from '@/consts';
+import { Box } from '@mui/material';
 import { useEffect, useState } from 'react';
-import styles from './Home.module.scss';
 
 interface FilePreview {
   id: string;
@@ -19,10 +19,18 @@ export function Home() {
   }, []);
 
   return (
-    <div className={styles.filesContainer}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: '20px',
+        fontSize: '0.8rem',
+        p: '5rem',
+      }}>
       {files.map((file) => (
         <PreviewCard key={file.id} id={file.id} content={file.content} numWords={file.numWords} />
       ))}
-    </div>
+    </Box>
   );
 }

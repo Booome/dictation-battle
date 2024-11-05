@@ -12,11 +12,13 @@
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@fontsource/roboto": "^5.1.0",
     "@gear-js/api": "0.38.3",
     "@gear-js/react-hooks": "0.13.1",
     "@gear-js/ui": "0.5.28",
     "@gear-js/vara-ui": "0.0.11",
     "@gear-js/wallet-connect": "0.1.2",
+    "@mui/icons-material": "^6.1.6",
     "@mui/material": "^6.1.6",
     "@mui/x-date-pickers": "^7.22.1",
     "@polkadot/extension-dapp": "^0.56.1",
