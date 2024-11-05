@@ -26,10 +26,6 @@ export function CreateBattle() {
     setIsSubmitting(true);
     setError(null);
 
-    if (!account?.address || !account?.meta?.source || !api) {
-      throw new Error('Wallet not connected');
-    }
-
     const entryFeeNumber = Number.parseInt(entryFee);
     const timeZone = dayjs().utcOffset() / 60;
     const startDateNumber = startDate ? Math.floor(startDate.valueOf() / 1000) : 0;
@@ -41,6 +37,10 @@ export function CreateBattle() {
     console.debug('endDateNumber:', endDateNumber);
 
     try {
+      if (!account?.address || !account?.meta?.source || !api) {
+        throw new Error('Wallet not connected');
+      }
+
       contract.setApi(api);
       const transaction = contract.services.DictationBattle.functions.CreateBattle(
         entryFeeNumber,
@@ -49,7 +49,8 @@ export function CreateBattle() {
         endDateNumber,
       );
       const injector = await web3FromSource(account.meta.source);
-      transaction.withAccount(account.address, { signer: injector.signer });
+      transaction.withAccount(account.address, { signer: injector.signer as any });
+      transaction.withValue(BigInt(entryFeeNumber));
       await transaction.calculateGas(true, 10);
       const { msgId, blockHash, txHash, response, isFinalized } = await transaction.signAndSend();
 

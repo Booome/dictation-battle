@@ -18,9 +18,11 @@ const initializeContract = async () => {
   const parser = await SailsIdlParser.new();
   const contract = new Sails(parser);
 
-  console.debug('idlContent:', idlContent);
+  console.log('idlContent:', idlContent);
 
   contract.parseIdl(idlContent);
+
+  console.log('VARA_PROGRAM_ID:', VARA_PROGRAM_ID);
   contract.setProgramId(VARA_PROGRAM_ID);
   return contract;
 };
