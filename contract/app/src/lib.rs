@@ -120,29 +120,31 @@ impl DictationBattleService {
         let joined = data
             .joined_battles
             .get(&user_id)
-            .expect("user has not joined any battles");
+            .map_or(Vec::new(), |battles| {
+                let len = battles.len() as i32;
 
-        let len = joined.len() as i32;
+                let start = if start < 0 { len + start } else { start };
+                let stop = if stop < 0 { len + stop } else { stop };
 
-        let start = if start < 0 { len + start } else { start };
-        let stop = if stop < 0 { len + stop } else { stop };
+                let start = start.clamp(0, len) as usize;
+                let stop = stop.clamp(0, len) as usize;
 
-        let start = start.clamp(0, len) as usize;
-        let stop = stop.clamp(0, len) as usize;
+                if start <= stop {
+                    battles[start..stop]
+                        .iter()
+                        .map(|&battle_id| data.battles[battle_id as usize].clone())
+                        .collect()
+                } else {
+                    let mut result: Vec<DictationBattle> = battles[stop..start]
+                        .iter()
+                        .map(|&battle_id| data.battles[battle_id as usize].clone())
+                        .collect();
+                    result.reverse();
+                    result
+                }
+            });
 
-        if start <= stop {
-            joined[start..stop]
-                .iter()
-                .map(|&battle_id| data.battles[battle_id as usize].clone())
-                .collect()
-        } else {
-            let mut result: Vec<DictationBattle> = joined[stop..start]
-                .iter()
-                .map(|&battle_id| data.battles[battle_id as usize].clone())
-                .collect();
-            result.reverse();
-            result
-        }
+        joined
     }
 
     pub fn join_battle(&mut self, battle_id: u64) {
