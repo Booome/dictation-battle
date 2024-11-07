@@ -1,6 +1,6 @@
 import { useContract } from '@/hocs/ContractProvider';
 import { useAccount, useApi } from '@gear-js/react-hooks';
-import { Box, Button } from '@mui/material';
+import { Box, Button, Divider } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Battles.module.scss';
@@ -38,14 +38,10 @@ export function Battles() {
         Host a Battle
       </Button>
 
-      <Divider name="Ongoing Battles" />
+      <Divider>Ongoing Battles</Divider>
       <BattleList />
     </Box>
   );
-}
-
-function Divider({ name }: { name: string }) {
-  return <div className={styles.divider}>{name}</div>;
 }
 
 function BattleList() {

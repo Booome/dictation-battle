@@ -11,6 +11,7 @@ import type { ComponentType } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { name as appName } from '../../package.json';
 import { ContractProvider } from './ContractProvider';
+import { LocalThemeProvider } from './LocalThemProvider';
 
 function ApiProvider({ children }: ProviderProps) {
   return <GearApiProvider initialArgs={{ endpoint: ADDRESS.NODE }}>{children}</GearApiProvider>;
@@ -43,9 +44,17 @@ function AccountProvider({ children }: ProviderProps) {
   return <GearAccountProvider appName={appName}>{children}</GearAccountProvider>;
 }
 
-const providers = [BrowserRouter, AlertProvider, ApiProvider, AccountProvider, QueryProvider, ContractProvider];
+const providers = [
+  BrowserRouter,
+  LocalThemeProvider,
+  AlertProvider,
+  ApiProvider,
+  AccountProvider,
+  QueryProvider,
+  ContractProvider,
+];
 
 export function withProviders(Component: ComponentType) {
-  // biome-ignore lint/correctness/useJsxKeyInIterable: <explanation>
-  return () => providers.reduceRight((children, Provider) => <Provider>{children}</Provider>, <Component />);
+  return () =>
+    providers.reduceRight((children, Provider) => <Provider key={Provider.name}>{children}</Provider>, <Component />);
 }
