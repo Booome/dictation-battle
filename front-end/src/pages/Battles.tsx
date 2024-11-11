@@ -18,8 +18,7 @@ export function Battles() {
       (async () => {
         try {
           contract.setApi(api);
-          const result = await contract.services.DictationBattle.queries.GetBattles(account.address, null, null, 0, 10);
-          console.log('result:', result);
+          await contract.services.DictationBattle.queries.GetBattles(account.address, undefined, undefined, 0, 10);
         } catch (error) {
           console.error('error:', error);
         }

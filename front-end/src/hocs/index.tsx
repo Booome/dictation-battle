@@ -14,7 +14,7 @@ import { ContractProvider } from './ContractProvider';
 import { LocalThemeProvider } from './LocalThemProvider';
 
 function ApiProvider({ children }: ProviderProps) {
-  return <GearApiProvider initialArgs={{ endpoint: ADDRESS.NODE }}>{children}</GearApiProvider>;
+  return <GearApiProvider initialArgs={{ endpoint: ADDRESS.NODE, timeout: 10000 }}>{children}</GearApiProvider>;
 }
 
 function AlertProvider({ children }: ProviderProps) {

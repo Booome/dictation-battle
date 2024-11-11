@@ -3,7 +3,12 @@ import { Box, Typography } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 import { useEffect, useState } from 'react';
 
-export function TargetViewer({ target }: { target: string }) {
+type Props = {
+  target: string;
+  onClick?: (target: string) => void;
+};
+
+export function TargetViewer({ target, onClick }: Props) {
   const [text, setText] = useState('');
 
   useEffect(() => {
@@ -17,12 +22,14 @@ export function TargetViewer({ target }: { target: string }) {
 
   return (
     <Box
+      onClick={() => onClick?.(target)}
       sx={{
         '&:hover': {
           backgroundColor: '#0001',
         },
+        cursor: onClick ? 'pointer' : 'default',
       }}>
-      {text.split('\n').map(renderLine)}
+      {text && text.split('\n').map((line, index) => <div key={`${target}-line-${index}`}>{renderLine(line)}</div>)}
     </Box>
   );
 }
@@ -32,7 +39,6 @@ function renderImage(imagePath: string) {
     imagePath = imagePath.slice(2);
   }
   const imageUrl = `${BACKEND_URL}/${imagePath}`;
-  console.log(imageUrl);
   return (
     <Box
       component="img"

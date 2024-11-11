@@ -12,10 +12,10 @@ import '@fontsource/roboto/700.css';
 const container = document.getElementById('root');
 const root = createRoot(container as HTMLElement);
 
-web3Enable('Dictation Battle');
-
-root.render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+web3Enable('Dictation Battle').then(() => {
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );
+});

@@ -1,31 +1,14 @@
 import idlContent from '@/assets/dictation_battle.idl?raw';
 import { VARA_PROGRAM_ID } from '@/consts';
-import { type ReactNode, createContext, useContext, useEffect, useState } from 'react';
+import { ReactNode, createContext, useContext, useEffect, useRef, useState } from 'react';
 import { Sails } from 'sails-js';
 import { SailsIdlParser } from 'sails-js-parser';
 
 const ContractContext = createContext<Sails | null>(null);
 
 export function useContract() {
-  const contract = useContext(ContractContext);
-  if (!contract) {
-    throw new Error('useContract must be used within a ContractProvider');
-  }
-  return contract;
+  return useContext(ContractContext);
 }
-
-const initializeContract = async () => {
-  const parser = await SailsIdlParser.new();
-  const contract = new Sails(parser);
-
-  console.log('idlContent:', idlContent);
-
-  contract.parseIdl(idlContent);
-
-  console.log('VARA_PROGRAM_ID:', VARA_PROGRAM_ID);
-  contract.setProgramId(VARA_PROGRAM_ID);
-  return contract;
-};
 
 interface ContractProviderProps {
   children: ReactNode;
@@ -33,16 +16,32 @@ interface ContractProviderProps {
 
 export function ContractProvider({ children }: ContractProviderProps) {
   const [contract, setContract] = useState<Sails | null>(null);
+  const initStarted = useRef(false);
 
   useEffect(() => {
-    if (!contract) {
-      initializeContract().then(setContract);
+    if (initStarted.current) {
+      return;
     }
-  }, [contract]);
+    initStarted.current = true;
 
-  if (!contract) {
-    return null;
-  }
+    const init = async () => {
+      const parser = await SailsIdlParser.new();
+      const instance = new Sails(parser);
+
+      console.log('parseIdl:', idlContent);
+      instance.parseIdl(idlContent);
+
+      console.log('setProgramId:', VARA_PROGRAM_ID);
+      instance.setProgramId(VARA_PROGRAM_ID);
+
+      setContract(instance);
+    };
+    init();
+
+    return () => {
+      initStarted.current = false;
+    };
+  }, []);
 
   return <ContractContext.Provider value={contract}>{children}</ContractContext.Provider>;
 }

@@ -2,17 +2,6 @@ import { Box, Divider } from '@mui/material';
 import { Logo } from './Logo';
 import { Wallet } from './Wallet';
 
-type HeaderProps = {
-  page: number;
-  totalPages: number;
-};
-
-export function Header({ page, totalPages }: HeaderProps) {
-  if (page === 1) {
-    return <HomePageHeader page={page} totalPages={totalPages} />;
-  }
-}
-
 function getFormattedDate() {
   const date = new Date();
   return date.toLocaleDateString('en-US', {
@@ -23,7 +12,7 @@ function getFormattedDate() {
   });
 }
 
-function HomePageHeader({ page, totalPages }: HeaderProps) {
+export function HomePageHeader() {
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
@@ -46,9 +35,7 @@ function HomePageHeader({ page, totalPages }: HeaderProps) {
         </Box>
       </Box>
       <Divider sx={{ borderWidth: '1px', borderColor: 'primary.main' }} />
-      <Box sx={{ textAlign: 'center', textTransform: 'uppercase', paddingY: '0.5rem' }}>
-        {getFormattedDate()}; PAGE {page}/{totalPages}
-      </Box>
+      <Box sx={{ textAlign: 'center', textTransform: 'uppercase', paddingY: '0.5rem' }}>{getFormattedDate()}</Box>
       <Divider sx={{ borderWidth: '1px', borderColor: 'primary.main' }} />
     </Box>
   );
