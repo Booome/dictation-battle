@@ -45,11 +45,11 @@ function HomePageHeader({ page, totalPages }: HeaderProps) {
           <Wallet fontSize="0.75rem" direction="column" />
         </Box>
       </Box>
-      <Divider sx={{ borderWidth: '1px' }} />
+      <Divider sx={{ borderWidth: '1px', borderColor: 'primary.main' }} />
       <Box sx={{ textAlign: 'center', textTransform: 'uppercase', paddingY: '0.5rem' }}>
         {getFormattedDate()}; PAGE {page}/{totalPages}
       </Box>
-      <Divider sx={{ borderWidth: '1px' }} />
+      <Divider sx={{ borderWidth: '1px', borderColor: 'primary.main' }} />
     </Box>
   );
 }

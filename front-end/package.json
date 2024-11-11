@@ -19,6 +19,7 @@
     "@gear-js/vara-ui": "0.0.11",
     "@gear-js/wallet-connect": "0.1.2",
     "@mui/icons-material": "^6.1.6",
+    "@mui/lab": "^6.0.0-beta.14",
     "@mui/material": "^6.1.6",
     "@mui/x-date-pickers": "^7.22.1",
     "@polkadot/extension-dapp": "^0.56.1",
