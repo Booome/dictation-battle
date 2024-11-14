@@ -4,11 +4,12 @@ import { Box, Button } from '@mui/material';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import './App.scss';
 import { withProviders } from './hocs';
+import { Favorite } from './pages/Favorite';
 import { Home } from './pages/Home';
 
 const routes = [
   { path: '/', Page: Home },
-  { path: '/1', Page: Home },
+  { path: '/favorite', Page: Favorite },
 ];
 
 function getRoutes() {

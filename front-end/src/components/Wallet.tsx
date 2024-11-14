@@ -63,7 +63,7 @@ export function Wallet({ fontSize, direction = 'row' }: WalletProps) {
             paddingRight: '0.25rem',
             paddingTop: '0.25rem',
             paddingLeft: direction === 'row' ? '0.25rem' : '0',
-            paddingBottom: direction === 'row' ? '7px' : '0',
+            paddingBottom: direction === 'row' ? '3px' : '0',
           }}>
           {(Number(balance.toString()) / 1000000000000).toFixed(3)} TVARA
         </Box>

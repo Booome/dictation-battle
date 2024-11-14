@@ -7,5 +7,8 @@
   "bracketSpacing": true,
   "bracketSameLine": true,
   "arrowParens": "always",
-  "tabWidth": 2
+  "tabWidth": 2,
+  "plugins": [
+    "prettier-plugin-curly"
+  ]
 }

@@ -11,7 +11,7 @@ import type { ComponentType } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { name as appName } from '../../package.json';
 import { ContractProvider } from './ContractProvider';
-import { LocalThemeProvider } from './LocalThemProvider';
+import { MainThemeProvider } from './ThemProviders';
 
 function ApiProvider({ children }: ProviderProps) {
   return <GearApiProvider initialArgs={{ endpoint: ADDRESS.NODE, timeout: 10000 }}>{children}</GearApiProvider>;
@@ -46,7 +46,7 @@ function AccountProvider({ children }: ProviderProps) {
 
 const providers = [
   BrowserRouter,
-  LocalThemeProvider,
+  MainThemeProvider,
   AlertProvider,
   ApiProvider,
   AccountProvider,

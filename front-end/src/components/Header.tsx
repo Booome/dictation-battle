@@ -22,10 +22,8 @@ export function HomePageHeader() {
         <Box
           sx={{
             position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
+            right: 0,
+            bottom: 0,
             display: 'flex',
             justifyContent: 'flex-end',
             alignItems: 'flex-end',
@@ -38,5 +36,46 @@ export function HomePageHeader() {
       <Box sx={{ textAlign: 'center', textTransform: 'uppercase', paddingY: '0.5rem' }}>{getFormattedDate()}</Box>
       <Divider sx={{ borderWidth: '1px', borderColor: 'primary.main' }} />
     </Box>
+  );
+}
+
+export function Header({ category }: { category?: string }) {
+  return (
+    <>
+      <Box
+        sx={{
+          position: 'relative',
+        }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0.5rem',
+          }}>
+          <Logo category={category} fontSize="2.5rem"></Logo>
+          <Wallet fontSize="0.75rem" direction="row" />
+        </Box>
+
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            textAlign: 'center',
+            textTransform: 'uppercase',
+            paddingY: '0.5rem',
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            paddingBottom: 1.2,
+          }}>
+          {getFormattedDate()}
+        </Box>
+      </Box>
+
+      <Divider sx={{ borderWidth: '1px', borderColor: 'primary.main' }} />
+    </>
   );
 }

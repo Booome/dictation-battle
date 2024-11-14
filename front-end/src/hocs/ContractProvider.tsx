@@ -19,12 +19,12 @@ export function ContractProvider({ children }: ContractProviderProps) {
   const initStarted = useRef(false);
 
   useEffect(() => {
-    if (initStarted.current) {
-      return;
-    }
-    initStarted.current = true;
+    (async () => {
+      if (initStarted.current) {
+        return;
+      }
+      initStarted.current = true;
 
-    const init = async () => {
       const parser = await SailsIdlParser.new();
       const instance = new Sails(parser);
 
@@ -35,12 +35,7 @@ export function ContractProvider({ children }: ContractProviderProps) {
       instance.setProgramId(VARA_PROGRAM_ID);
 
       setContract(instance);
-    };
-    init();
-
-    return () => {
-      initStarted.current = false;
-    };
+    })();
   }, []);
 
   return <ContractContext.Provider value={contract}>{children}</ContractContext.Provider>;
