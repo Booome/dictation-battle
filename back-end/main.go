@@ -18,7 +18,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-const PORT = ":8041"
+const HOST = "0.0.0.0:8041"
 
 func getDataPath() string {
 	path := os.Getenv("DATA_PATH")
@@ -96,7 +96,7 @@ func NewServer() *Server {
 }
 
 func (s *Server) Run() error {
-	return s.engine.Run(PORT)
+	return s.engine.Run(HOST)
 }
 
 func (s *Server) Close() error {
@@ -110,7 +110,7 @@ func (s *Server) initEngine() {
 	}
 
 	s.engine.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{frontendUrl},
+		AllowOrigins:     []string{"http://127.0.0.1:*", "http://localhost:*", frontendUrl},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},

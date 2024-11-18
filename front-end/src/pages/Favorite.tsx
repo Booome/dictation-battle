@@ -1,35 +1,20 @@
 import { Header } from '@/components/Header';
 import { TargetViewer } from '@/components/TargetViewer';
-import { BACKEND_URL } from '@/consts';
 import { useAccount } from '@gear-js/react-hooks';
 import { Box } from '@mui/material';
-import { useEffect, useState } from 'react';
 
 export function Favorite() {
-  const [targets, setTargets] = useState<string[]>([]);
   const { account } = useAccount();
 
-  useEffect(() => {
-    if (!account) {
-      return;
-    }
-
-    const url = `${BACKEND_URL}/favorites?account=${account.address}`;
-
-    fetch(url)
-      .then((res) => res.json())
-      .then((favorites) => {
-        setTargets(favorites.reverse());
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
-  }, [account]);
-
   return (
-    <Box>
+    <Box sx={{ minHeight: '100vh' }}>
       <Header category="Favorite" />
-      <TargetViewer targets={targets} />
+      {account && <TargetViewer category="favorite" emptyMessage="No favorite targets" />}
+      {!account && (
+        <Box sx={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 'bold', py: 4 }}>
+          Please connect your wallet to continue.
+        </Box>
+      )}
     </Box>
   );
 }

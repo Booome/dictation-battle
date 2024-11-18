@@ -1,6 +1,7 @@
 import { BACKEND_URL } from '@/consts';
 import { MarkdownThemeProvider } from '@/hocs/ThemProviders';
 import { Markdown } from '@/types/Markdown';
+import { fetchTargetMarkdown, getWordCount } from '@/types/utils';
 import { useAccount } from '@gear-js/react-hooks';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -9,23 +10,19 @@ import { Box, Divider, Tooltip, Typography } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 import { forwardRef, useEffect, useState } from 'react';
 import { visit } from 'unist-util-visit';
+import { BattleSelectModal } from './BattleSelectModal';
+import { ChallengeModal } from './ChallengeModal';
 
 type Props = {
   target: string;
   onClick?: (target: string) => void;
+  showInfoBar?: boolean;
 };
 
-export const TargetCard = forwardRef<HTMLDivElement, Props>(({ target, onClick }, ref) => {
-  const [markdown, setMarkdown] = useState<Markdown>();
-
-  useEffect(() => {
-    fetch(`${BACKEND_URL}/targets/${target}`)
-      .then((res) => res.text())
-      .then((text) => setMarkdown(new Markdown(text)))
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
-  }, [target]);
+export const TargetCard = forwardRef<HTMLDivElement, Props>(({ target, onClick, showInfoBar = true }, ref) => {
+  const [openChallengeModal, setOpenChallengeModal] = useState(false);
+  const [openBattleSelectModal, setOpenBattleSelectModal] = useState(false);
+  const [selectedBattleId, setSelectedBattleId] = useState<number>(0);
 
   return (
     <Box
@@ -34,54 +31,98 @@ export const TargetCard = forwardRef<HTMLDivElement, Props>(({ target, onClick }
       sx={{
         cursor: onClick ? 'pointer' : 'default',
       }}>
-      <MarkdownRenderer markdown={markdown} target={target} />
+      <MarkdownRenderer
+        target={target}
+        onStartChallenge={() => setOpenBattleSelectModal(true)}
+        showInfoBar={showInfoBar}
+      />
+
+      <BattleSelectModal
+        open={openBattleSelectModal}
+        onClose={() => setOpenBattleSelectModal(false)}
+        onSelect={(id) => {
+          setSelectedBattleId(id);
+          setOpenBattleSelectModal(false);
+          setOpenChallengeModal(true);
+        }}
+      />
+      <ChallengeModal
+        target={target}
+        battle={selectedBattleId}
+        open={openChallengeModal}
+        onClose={() => setOpenChallengeModal(false)}
+      />
     </Box>
   );
 });
 
-function MarkdownRenderer({ markdown, target }: { markdown: Markdown | undefined; target: string }) {
-  if (!markdown) {
-    return undefined;
-  }
+function MarkdownRenderer({
+  target,
+  onStartChallenge,
+  showInfoBar = true,
+}: {
+  target: string;
+  onStartChallenge: () => void;
+  showInfoBar?: boolean;
+}) {
+  const [markdown, setMarkdown] = useState<Markdown>();
+  const [elements, setElements] = useState<React.ReactNode[]>([]);
 
-  const elements: React.ReactNode[] = [];
-  let elementIndex = 0;
-  const wordCount = markdown
-    .getVisibleText()
-    .replace(/\s+/g, ' ')
-    .split(' ')
-    .filter((word) => word.length > 0).length;
-
-  visit(markdown.getTree(), (node) => {
-    switch (node.type) {
-      case 'root':
-        break;
-      case 'heading':
-        elements.push(
-          <Typography key={`${elementIndex++}`} variant={`h${node.depth}` as Variant} sx={{ mb: 1 }}>
-            {node.children[0].value}
-          </Typography>,
-        );
-        if (node.depth === 1) {
-          elements.push(<InfoRenderer key={`${elementIndex++}`} wordCount={wordCount} target={target} />);
-        }
-        break;
-      case 'paragraph':
-        elements.push(
-          <Typography key={`${elementIndex++}`} variant={'body1' as Variant} sx={{ mb: 1 }}>
-            {node.children[0].value}
-          </Typography>,
-        );
-        break;
-      case 'image':
-        elements.push(<ImageRenderer key={`${elementIndex++}`} imagePath={node.url} />);
-        break;
-      case 'text':
-        break;
-      default:
-        throw new Error(`Not implemented node type: ${node.type}`);
+  useEffect(() => {
+    if (target) {
+      fetchTargetMarkdown(target).then(setMarkdown);
     }
-  });
+  }, [target]);
+
+  useEffect(() => {
+    if (!markdown) {
+      return;
+    }
+
+    const wordCount = getWordCount(markdown.text.split('\n').slice(1).join(' '));
+    const eles: React.ReactNode[] = [];
+    let elementIndex = 0;
+
+    visit(markdown.tree, (node) => {
+      switch (node.type) {
+        case 'root':
+          break;
+        case 'heading':
+          eles.push(
+            <Typography key={`${elementIndex++}`} variant={`h${node.depth}` as Variant} sx={{ mb: 1 }}>
+              {node.children[0].value}
+            </Typography>,
+          );
+          if (node.depth === 1 && showInfoBar) {
+            eles.push(
+              <InfoRenderer
+                key={`${elementIndex++}`}
+                onStartChallenge={onStartChallenge}
+                wordCount={wordCount}
+                target={target}
+              />,
+            );
+          }
+          break;
+        case 'paragraph':
+          eles.push(
+            <Typography key={`${elementIndex++}`} variant={'body1' as Variant} sx={{ mb: 1 }}>
+              {node.children[0].value}
+            </Typography>,
+          );
+          break;
+        case 'image':
+          eles.push(<ImageRenderer key={`${elementIndex++}`} imagePath={node.url} />);
+          break;
+        case 'text':
+          break;
+        default:
+          throw new Error(`Not implemented node type: ${node.type}`);
+      }
+    });
+
+    setElements(eles);
+  }, [markdown]);
 
   return <MarkdownThemeProvider>{elements}</MarkdownThemeProvider>;
 }
@@ -108,7 +149,15 @@ function ImageRenderer({ imagePath }: { imagePath: string }) {
   );
 }
 
-function InfoRenderer({ wordCount, target }: { wordCount: number; target: string }) {
+function InfoRenderer({
+  wordCount,
+  target,
+  onStartChallenge,
+}: {
+  wordCount: number;
+  target: string;
+  onStartChallenge: () => void;
+}) {
   const { account } = useAccount();
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -147,10 +196,6 @@ function InfoRenderer({ wordCount, target }: { wordCount: number; target: string
     setTimeout(() => {
       fetchFavorites();
     }, 100);
-  };
-
-  const handlePlayClick = () => {
-    console.log('play');
   };
 
   return (
@@ -196,7 +241,7 @@ function InfoRenderer({ wordCount, target }: { wordCount: number; target: string
             <Tooltip title="Start Challenge">
               <PlayCircleOutlineIcon
                 sx={{ color: 'grey.800', cursor: 'pointer', marginLeft: 1, '&:hover': { color: 'grey.600' } }}
-                onClick={() => handlePlayClick()}
+                onClick={onStartChallenge}
               />
             </Tooltip>
           )}

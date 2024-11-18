@@ -1,10 +1,14 @@
-import idlContent from '@/assets/dictation_battle.idl?raw';
+import metaContent from '@/assets/chrono_quest.meta.txt?raw';
 import { VARA_PROGRAM_ID } from '@/consts';
+import { ProgramMetadata } from '@gear-js/api';
 import { ReactNode, createContext, useContext, useEffect, useRef, useState } from 'react';
-import { Sails } from 'sails-js';
-import { SailsIdlParser } from 'sails-js-parser';
 
-const ContractContext = createContext<Sails | null>(null);
+type Contract = {
+  metadata?: ProgramMetadata;
+  programId?: string;
+};
+
+const ContractContext = createContext<Contract>({});
 
 export function useContract() {
   return useContext(ContractContext);
@@ -15,7 +19,7 @@ interface ContractProviderProps {
 }
 
 export function ContractProvider({ children }: ContractProviderProps) {
-  const [contract, setContract] = useState<Sails | null>(null);
+  const [contract, setContract] = useState<Contract>({});
   const initStarted = useRef(false);
 
   useEffect(() => {
@@ -25,16 +29,10 @@ export function ContractProvider({ children }: ContractProviderProps) {
       }
       initStarted.current = true;
 
-      const parser = await SailsIdlParser.new();
-      const instance = new Sails(parser);
+      const metadata = ProgramMetadata.from('0x' + metaContent);
+      console.log('metadata:', metadata);
 
-      console.log('parseIdl:', idlContent);
-      instance.parseIdl(idlContent);
-
-      console.log('setProgramId:', VARA_PROGRAM_ID);
-      instance.setProgramId(VARA_PROGRAM_ID);
-
-      setContract(instance);
+      setContract({ metadata, programId: VARA_PROGRAM_ID });
     })();
   }, []);
 
