@@ -1,0 +1,18 @@
+[workspace]
+resolver = "2"
+members = ["chrono-quest"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+
+[workspace.dependencies]
+gstd = "1.6.2"
+gtest = "1.6.2"
+gear-wasm-builder = "1.6.2"
+gmeta = "1.6.2"
+
+chrono-quest-io.path = "chrono-quest/io"
+
+scale-info = { version = "2", default-features = false }
+parity-scale-codec = { version = "3", default-features = false }

@@ -1,0 +1,22 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Droid Serif', serif;
+}
+
+body {
+  font-size: 14px;
+  color: #2f2f2f;
+}
+
+header {
+  font-family: 'Playfair Display', serif;
+}
+
+@font-face {
+  font-family: 'CartoonistHand';
+  src: url('./assets/sf-cartoonist-hand.regular.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
