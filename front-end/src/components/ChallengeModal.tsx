@@ -11,11 +11,12 @@ import { BaseModal } from './BaseModal';
 interface Props {
   open: boolean;
   onClose: () => void;
+  onSucceed?: () => void;
   target: string;
   battle: number;
 }
 
-export function ChallengeModal({ open, onClose, target, battle }: Props) {
+export function ChallengeModal({ open, onClose, onSucceed, target, battle }: Props) {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [diffing, setDiffing] = useState<boolean>(false);
   const [diff, setDiff] = useState<Change[]>([]);
@@ -109,7 +110,7 @@ export function ChallengeModal({ open, onClose, target, battle }: Props) {
           console.log('decodedPayload: ', decodedPayload);
           setShowSuccess(true);
           setTimeout(() => {
-            onClose();
+            onSucceed?.();
           }, 3000);
         })
         .catch((err) => {

@@ -34,7 +34,7 @@ export function BattleModal({ open, onClose, battle }: Props) {
   const startTime = parseInt(battle.startTime.replace(/,/g, '')) * 1000;
   const endTime = parseInt(battle.endTime.replace(/,/g, '')) * 1000;
 
-  useEffect(() => {
+  const fetchBattle = () => {
     if (!account || !open) {
       return;
     }
@@ -59,6 +59,10 @@ export function BattleModal({ open, onClose, battle }: Props) {
 
     setMissedDays(missed);
     setCompletedDays(completed);
+  };
+
+  useEffect(() => {
+    fetchBattle();
   }, [open, battle]);
 
   useEffect(() => {
@@ -67,94 +71,12 @@ export function BattleModal({ open, onClose, battle }: Props) {
     }
   }, [targetId]);
 
-  const CalendarView = () => {
-    return (
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DateCalendar
-          views={['day']}
-          readOnly={true}
-          showDaysOutsideCurrentMonth={false}
-          timezone={`Etc/GMT${timezone >= 0 ? '-' : '+'}${Math.abs(timezone)}`}
-          slots={{
-            day: (props) => {
-              const formattedDate = props.day.utcOffset(timezone).format('YYYY-MM-DD');
-              const isMissed = missedDays.includes(formattedDate);
-              const isCompleted = completedDays.includes(formattedDate);
-              return (
-                <Box
-                  sx={{
-                    position: 'relative',
-                    width: '36px',
-                    height: '36px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    bgcolor: isMissed ? '#ffebee' : isCompleted ? '#e8f5e9' : 'transparent',
-                    borderRadius: '50%',
-                    border: props.today ? '1px solid black' : 'none',
-                  }}>
-                  {props.day.date()}
-                  {(isMissed || isCompleted) && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        bottom: '2px',
-                        width: '4px',
-                        height: '4px',
-                        borderRadius: '50%',
-                        bgcolor: isMissed ? '#ef5350' : '#4caf50',
-                      }}
-                    />
-                  )}
-                </Box>
-              );
-            },
-          }}
-          sx={{
-            width: '40rem',
-            height: '40rem',
-            bgcolor: '#0001',
-            '& .MuiPickersDay-root': {
-              cursor: 'default',
-              '&:hover': {
-                backgroundColor: 'transparent',
-              },
-              '&:focus': {
-                backgroundColor: 'transparent',
-              },
-            },
-            '& .MuiPickersDay-today': {
-              border: '1px solid black',
-              backgroundColor: 'transparent',
-              '&:hover': {
-                backgroundColor: 'transparent',
-              },
-              '&:focus': {
-                backgroundColor: 'transparent',
-              },
-            },
-            '& .Mui-selected': {
-              backgroundColor: 'transparent !important',
-              color: 'inherit',
-              '&:hover': {
-                backgroundColor: 'transparent',
-              },
-              '&:focus': {
-                backgroundColor: 'transparent',
-              },
-            },
-          }}
-        />
-      </LocalizationProvider>
-    );
-  };
-
   return (
     <BaseModal open={open} onClose={onClose}>
       <Box sx={{ bgcolor: 'white', margin: 'auto', padding: '1.5rem' }} onClick={(e) => e.stopPropagation()}>
         <Box sx={{ fontSize: '1rem', fontWeight: 500, textAlign: 'left', mb: 1 }}>Battle #{battle.id}</Box>
         <Box sx={{ fontSize: '1.5rem', fontWeight: 'bold', textAlign: 'center', mb: 2 }}>Daily Challenge</Box>
-        <CalendarView />
+        <CalendarView missedDays={missedDays} completedDays={completedDays} timezone={timezone} />
         <Button
           variant="outlined"
           color="primary"
@@ -192,7 +114,101 @@ export function BattleModal({ open, onClose, battle }: Props) {
         battle={battle.id}
         open={targetId !== undefined && openChallengeModal}
         onClose={() => setOpenChallengeModal(false)}
+        onSucceed={() => {
+          setOpenChallengeModal(false);
+          fetchBattle();
+        }}
       />
     </BaseModal>
+  );
+}
+
+function CalendarView({
+  missedDays,
+  completedDays,
+  timezone,
+}: {
+  missedDays: string[];
+  completedDays: string[];
+  timezone: number;
+}) {
+  return (
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <DateCalendar
+        views={['day']}
+        readOnly={true}
+        showDaysOutsideCurrentMonth={false}
+        timezone={`Etc/GMT${timezone >= 0 ? '-' : '+'}${Math.abs(timezone)}`}
+        slots={{
+          day: (props) => {
+            const formattedDate = props.day.utcOffset(timezone).format('YYYY-MM-DD');
+            const isMissed = missedDays.includes(formattedDate);
+            const isCompleted = completedDays.includes(formattedDate);
+            return (
+              <Box
+                sx={{
+                  position: 'relative',
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  bgcolor: isMissed ? '#ffebee' : isCompleted ? '#e8f5e9' : 'transparent',
+                  borderRadius: '50%',
+                  border: props.today ? '1px solid black' : 'none',
+                }}>
+                {props.day.date()}
+                {(isMissed || isCompleted) && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      bottom: '2px',
+                      width: '4px',
+                      height: '4px',
+                      borderRadius: '50%',
+                      bgcolor: isMissed ? '#ef5350' : '#4caf50',
+                    }}
+                  />
+                )}
+              </Box>
+            );
+          },
+        }}
+        sx={{
+          width: '40rem',
+          height: '40rem',
+          bgcolor: '#0001',
+          '& .MuiPickersDay-root': {
+            cursor: 'default',
+            '&:hover': {
+              backgroundColor: 'transparent',
+            },
+            '&:focus': {
+              backgroundColor: 'transparent',
+            },
+          },
+          '& .MuiPickersDay-today': {
+            border: '1px solid black',
+            backgroundColor: 'transparent',
+            '&:hover': {
+              backgroundColor: 'transparent',
+            },
+            '&:focus': {
+              backgroundColor: 'transparent',
+            },
+          },
+          '& .Mui-selected': {
+            backgroundColor: 'transparent !important',
+            color: 'inherit',
+            '&:hover': {
+              backgroundColor: 'transparent',
+            },
+            '&:focus': {
+              backgroundColor: 'transparent',
+            },
+          },
+        }}
+      />
+    </LocalizationProvider>
   );
 }
