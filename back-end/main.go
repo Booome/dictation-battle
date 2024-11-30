@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
@@ -109,13 +108,13 @@ func (s *Server) initEngine() {
 		log.Fatal("FRONTEND_URL is not set")
 	}
 
-	s.engine.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://127.0.0.1:*", "http://localhost:*", frontendUrl},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-	}))
+	// s.engine.Use(cors.New(cors.Config{
+	// 	AllowOrigins:     []string{"http://127.0.0.1:*", "http://localhost:*", frontendUrl},
+	// 	AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	// 	AllowHeaders:     []string{"Origin", "Content-Type"},
+	// 	ExposeHeaders:    []string{"Content-Length"},
+	// 	AllowCredentials: true,
+	// }))
 
 	s.engine.GET("/targets/preview", s.handleGetPreview)
 	s.engine.GET("/targets/:id", s.handleGetTarget)
